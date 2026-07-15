@@ -15,6 +15,8 @@ Ambos productos cubren RPGLE, SQLRPGLE, CLLE, DDS, PF/LF/DSPF, Db2 for i, ILE, A
 
 IBM i Senior agrega 18 herramientas para consultar un ambiente IBM i configurado: catalogos y objetos Db2, SQL read-only, job logs, spool, miembros fuente, metadata de objetos, message files, documentacion, planes de compilacion y comandos CL de consulta controlados.
 
+Su instalador detecta automaticamente el driver ODBC IBM i de 64 bits. Si falta, inicia un asistente que abre la descarga oficial, valida la firma IBM del `setup.exe`, ejecuta la instalacion con consentimiento y vuelve a comprobar el prerequisito antes de registrar el servidor local.
+
 IBM i Atlas ofrece el mismo criterio senior sobre fuentes, DDL, job logs, spool, listados y requerimientos disponibles en el workspace o adjuntos. Esta orientado a analisis portable, revision, generacion, documentacion y preparacion de pruebas.
 
 Ejemplos:
@@ -58,6 +60,8 @@ Set-ExecutionPolicy -Scope Process Bypass
 ```
 
 Los instaladores autodetectan VS Code estable, VS Code Insiders y modo portable. No dependen de rutas, nombres de usuario ni unidades del equipo donde se desarrollo el proyecto.
+
+En despliegues no interactivos, Senior admite `-NonInteractive`: si falta ODBC, termina sin modificar VS Code y muestra la accion requerida.
 
 ## Modelos
 

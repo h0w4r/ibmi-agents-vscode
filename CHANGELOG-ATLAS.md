@@ -1,5 +1,10 @@
 # Historial De Cambios - IBM i Atlas
 
+## 0.4.0 - 15/07/2026
+
+- Numeracion sincronizada con la distribucion general.
+- Sin cambios funcionales ni nuevos prerequisitos para Atlas.
+
 ## 0.3.1 - 15/07/2026
 
 - Matriz ampliada de capacidades y artefactos compatibles.

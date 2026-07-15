@@ -78,4 +78,21 @@ describe("ediciones de agentes", () => {
       expect(existsSync(join(scriptRoot, `${legacy}-IbmiAgent.ps1`))).toBe(false);
     }
   });
+
+  it("comprueba ODBC antes de modificar la instalacion Senior", () => {
+    const installPath = join(scriptRoot, "Install-IbmiSenior.ps1");
+    const installText = readFileSync(installPath, "utf8");
+    const updateText = readFileSync(join(scriptRoot, "Update-IbmiSenior.ps1"), "utf8");
+    const prerequisiteIndex = installText.indexOf("Resolve-IbmiOdbcPrerequisite");
+    const mutationIndex = installText.indexOf("New-Item -ItemType Directory -Path $layout.InstallRoot");
+
+    expect(existsSync(join(scriptRoot, "Install-IbmiOdbcPrerequisite.ps1"))).toBe(true);
+    expect(existsSync(join(scriptRoot, "lib", "IbmiOdbcPrerequisite.ps1"))).toBe(true);
+    expect(prerequisiteIndex).toBeGreaterThan(0);
+    expect(mutationIndex).toBeGreaterThan(prerequisiteIndex);
+    expect(installText).toContain('process.arch');
+    expect(installText).toContain('-NonInteractive:$NonInteractive');
+    expect(updateText).toContain('IsNullOrWhiteSpace($OdbcDriver)');
+    expect(updateText).toContain('$parameters.OdbcDriver = $OdbcDriver');
+  });
 });

@@ -64,6 +64,10 @@ jobs:
             throw "Se detectaron $($fallos.Count) errores de sintaxis PowerShell."
           }
 
+      - name: Probar asistente ODBC con inventarios simulados
+        shell: pwsh
+        run: ./scripts/Test-IbmiOdbcPrerequisite.Unit.ps1
+
       - name: Construir los dos paquetes
         shell: pwsh
         run: ./scripts/Build-ReleasePackages.ps1

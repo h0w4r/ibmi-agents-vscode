@@ -3,6 +3,7 @@ param([string]$InstallRoot = (Join-Path $env:LOCALAPPDATA "ibmi-senior-agent"))
 
 $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot "lib\IbmiAgent.Common.ps1")
+. (Join-Path $PSScriptRoot "lib\IbmiOdbcPrerequisite.ps1")
 $manifestPath = Join-Path ([IO.Path]::GetFullPath($InstallRoot)) "install-manifest.json"
 if (-not (Test-Path -LiteralPath $manifestPath)) { throw "No se encontro IBM i Senior en '$manifestPath'." }
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
@@ -50,8 +51,14 @@ if ($nodeCommand -and (Test-Path -LiteralPath $mergeScript) -and (Test-Path -Lit
 } else {
     Add-DiagnosticResult "Configuracion MCP" $false $manifest.mcpConfigPath
 }
-$drivers = @(Get-OdbcDriver -ErrorAction SilentlyContinue | Where-Object { $_.Name -in @("IBM i Access ODBC Driver", "iSeries Access ODBC Driver", "Client Access ODBC Driver (32-bit)") })
-Add-DiagnosticResult "Driver ODBC IBM i" ($drivers.Count -gt 0) $(if ($drivers.Count) { ($drivers.Name -join ", ") } else { "No se encontro un alias soportado" })
+$drivers = @(Get-IbmiOdbcDriverInventory)
+$configuredDriver = @($drivers | Where-Object { $_.Name -eq $manifest.odbcDriver } | Select-Object -First 1)
+$driverDetail = if ($configuredDriver.Count -gt 0) {
+    "$($configuredDriver[0].Name) [$($configuredDriver[0].Platform)] version $($configuredDriver[0].Version)"
+} else {
+    "El alias configurado '$($manifest.odbcDriver)' no esta registrado para 64 bits"
+}
+Add-DiagnosticResult "Driver ODBC IBM i" ($configuredDriver.Count -gt 0) $driverDetail
 
 $results | Format-Table -AutoSize
 if ($results.Resultado -contains "FALLO") { exit 1 }

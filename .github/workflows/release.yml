@@ -69,6 +69,10 @@ jobs:
           PUBLIC_CONTENT_DENYLIST: ${{ secrets.PUBLIC_CONTENT_DENYLIST }}
         run: node scripts/validate-public-content.mjs
 
+      - name: Probar asistente ODBC con inventarios simulados
+        shell: pwsh
+        run: ./scripts/Test-IbmiOdbcPrerequisite.Unit.ps1
+
       - name: Construir paquetes versionados
         shell: pwsh
         run: ./scripts/Build-ReleasePackages.ps1 -Version "${{ steps.version.outputs.version }}"

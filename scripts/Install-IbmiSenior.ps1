@@ -5,11 +5,14 @@ param(
     [string]$CopilotHome,
     [string]$VsCodeUserDataPath,
     [ValidateSet("IBM i Access ODBC Driver", "iSeries Access ODBC Driver", "Client Access ODBC Driver (32-bit)")]
-    [string]$OdbcDriver = "IBM i Access ODBC Driver"
+    [string]$OdbcDriver,
+    [string]$OdbcInstallerPath,
+    [switch]$NonInteractive
 )
 
 $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot "lib\IbmiAgent.Common.ps1")
+. (Join-Path $PSScriptRoot "lib\IbmiOdbcPrerequisite.ps1")
 
 $source = [IO.Path]::GetFullPath($SourceRoot)
 if ([string]::IsNullOrWhiteSpace($InstallRoot)) {
@@ -34,6 +37,16 @@ $nodeMajor = [int]((& $node -p "process.versions.node.split('.')[0]").Trim())
 if ($nodeMajor -lt 20) {
     throw "Se requiere Node.js 20 o superior. Version detectada: $(& $node --version)."
 }
+$nodeArchitecture = (& $node -p "process.arch").Trim()
+if ($nodeArchitecture -ne "x64") {
+    throw "IBM i Senior requiere Node.js de 64 bits (x64). Arquitectura detectada: $nodeArchitecture."
+}
+
+# El MCP solo se registra despues de comprobar el driver que cargara el proceso Node.js de 64 bits.
+$resolvedOdbcDriver = Resolve-IbmiOdbcPrerequisite `
+    -PreferredDriver $OdbcDriver `
+    -InstallerPath $OdbcInstallerPath `
+    -NonInteractive:$NonInteractive
 
 New-Item -ItemType Directory -Path $layout.InstallRoot, $layout.BackupsRoot, $layout.LogsRoot -Force | Out-Null
 $backupRoot = New-IbmiBackupRoot -BackupsRoot $layout.BackupsRoot
@@ -52,11 +65,13 @@ try {
         "Update-IbmiSenior.ps1",
         "Uninstall-IbmiSenior.ps1",
         "Test-IbmiSenior.ps1",
+        "Install-IbmiOdbcPrerequisite.ps1",
         "merge-mcp-config.mjs"
     )) {
         Copy-Item -LiteralPath (Join-Path $source "scripts\$relative") -Destination (Join-Path $stagingScripts $relative) -Force
     }
     Copy-Item -LiteralPath (Join-Path $source "scripts\lib\IbmiAgent.Common.ps1") -Destination (Join-Path $stagingScripts "lib\IbmiAgent.Common.ps1") -Force
+    Copy-Item -LiteralPath (Join-Path $source "scripts\lib\IbmiOdbcPrerequisite.ps1") -Destination (Join-Path $stagingScripts "lib\IbmiOdbcPrerequisite.ps1") -Force
 
     $serverDestination = Join-Path $staging "mcp\ibmi-local"
     New-Item -ItemType Directory -Path $serverDestination -Force | Out-Null
@@ -96,7 +111,7 @@ try {
     $docs = Join-Path $layout.CurrentRoot "docs\ibmi"
     $audit = Join-Path $layout.LogsRoot "audit.log"
     $mcpConfigPath = Join-Path $layout.VsCodeUserData "mcp.json"
-    & $node $mergeScript --mode install --config $mcpConfigPath --entry $entry --docs $docs --audit $audit --driver $OdbcDriver --backup-dir (Join-Path $backupRoot "vscode")
+    & $node $mergeScript --mode install --config $mcpConfigPath --entry $entry --docs $docs --audit $audit --driver $resolvedOdbcDriver.Name --backup-dir (Join-Path $backupRoot "vscode")
     if ($LASTEXITCODE -ne 0) { throw "No se pudo registrar ibmi-local en mcp.json." }
 
     $manifest = [ordered]@{
@@ -111,7 +126,10 @@ try {
         vsCodeUserDataPath      = $layout.VsCodeUserData
         mcpConfigPath           = $mcpConfigPath
         mcpConfigured           = $true
-        odbcDriver              = $OdbcDriver
+        odbcDriver              = $resolvedOdbcDriver.Name
+        odbcDriverVersion       = $resolvedOdbcDriver.Version
+        odbcDriverPlatform      = $resolvedOdbcDriver.Platform
+        odbcDriverLegacy        = $resolvedOdbcDriver.IsLegacy
         mainAgent               = "ibmi-senior.agent.md"
         agents                  = @($installed.Agents)
         skills                  = @($installed.Skills)
@@ -127,6 +145,7 @@ try {
     Write-Host "Skills:   $($layout.SkillsRoot)"
     Write-Host "Prompts:  $($layout.PromptsRoot)"
     Write-Host "MCP:      $mcpConfigPath"
+    Write-Host "ODBC:     $($resolvedOdbcDriver.Name) [$($resolvedOdbcDriver.Platform)]"
     if ($legacyAgents.Count -gt 0) {
         Write-Host "Migracion: $($legacyAgents.Count) agente(s) manual(es) antiguo(s) respaldado(s) y retirado(s)."
     }

@@ -1,6 +1,6 @@
 {
   "name": "ibmi-local-mcp",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Servidor MCP local para agente senior IBM i en VS Code y GitHub Copilot.",
   "type": "module",
   "private": true,

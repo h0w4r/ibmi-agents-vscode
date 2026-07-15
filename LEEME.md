@@ -76,6 +76,55 @@ El MCP admite estos nombres exactos:
 
 IBM i Access for Windows 7.1 esta fuera de soporte y no es la recomendacion para una instalacion nueva en Windows 11. El agente mantiene su alias para equipos existentes, pero la version indicada a nuevos usuarios es **ACS Windows Application Package 1.1.0.29 o posterior, 64 bits**.
 
+## Asistente ODBC Integrado
+
+`Install-IbmiSenior.ps1` comprueba el prerequisito antes de crear staging, backups o configuracion de VS Code.
+
+| Situacion | Comportamiento |
+| --- | --- |
+| Driver actual registrado para 64 bits | Lo selecciona automaticamente y continua sin preguntas |
+| Solo existe un alias heredado para 64 bits | Lo selecciona, informa que la actualizacion es opcional y continua sin forzarla |
+| No existe un driver compatible | Abre el asistente y no modifica VS Code hasta resolverlo |
+| Modo `-NonInteractive` sin driver | Falla de inmediato con la descarga oficial y no abre navegador ni UAC |
+| Alias con texto `32-bit` | Solo se acepta si Windows lo devuelve desde el inventario de plataforma `64-bit` |
+
+Cuando falta el driver, el asistente permite:
+
+1. Abrir la descarga oficial de IBM en el navegador.
+2. Indicar la ruta local al `setup.exe` ya descargado y extraido.
+3. Volver a comprobar despues de una instalacion manual.
+4. Cancelar sin dejar una instalacion parcial.
+
+Antes de ejecutar `setup.exe`, comprueba que sea un archivo local, que tenga firma Authenticode valida y que el editor sea IBM. Luego solicita confirmacion, muestra UAC y ejecuta la interfaz oficial con `ADDLOCAL=req,odbc`. La descarga, el IBM ID y la aceptacion de licencia permanecen bajo control del usuario.
+
+Tambien puedes ejecutar solamente el asistente:
+
+```powershell
+.\scripts\Install-IbmiOdbcPrerequisite.ps1
+```
+
+Si existe un driver heredado, este comando lo acepta y termina correctamente. Para optar voluntariamente por el driver actual, exige ese alias de forma explicita:
+
+```powershell
+.\scripts\Install-IbmiOdbcPrerequisite.ps1 `
+  -OdbcDriver "IBM i Access ODBC Driver"
+```
+
+Si ya descargaste y extrajiste el Windows Application Package:
+
+```powershell
+.\scripts\Install-IbmiSenior.ps1 `
+  -OdbcInstallerPath "D:\Descargas\IBMiACS\setup.exe"
+```
+
+Para automatizaciones que deben fallar en vez de preguntar:
+
+```powershell
+.\scripts\Install-IbmiSenior.ps1 -NonInteractive
+```
+
+El asistente nunca intenta conectarse a un host IBM i ni valida usuarios o passwords.
+
 ## Instalacion Global Automatica
 
 1. Descarga `ibmi-senior-vX.Y.Z.zip` desde la [ultima release publica](https://github.com/h0w4r/ibmi-agents-vscode/releases/latest).
@@ -87,23 +136,21 @@ Set-ExecutionPolicy -Scope Process Bypass
 .\scripts\Install-IbmiSenior.ps1
 ```
 
-En el equipo que ya tiene IBM i Access for Windows 7.1 y el alias `iSeries Access ODBC Driver`, usa:
-
-```powershell
-.\scripts\Install-IbmiSenior.ps1 -OdbcDriver "iSeries Access ODBC Driver"
-```
+No necesitas conocer el nombre del driver instalado. El instalador prioriza el driver ACS actual y selecciona automaticamente un alias heredado compatible cuando sea la unica opcion. `-OdbcDriver` queda disponible para exigir un alias concreto.
 
 El instalador realiza estas operaciones:
 
-1. Valida Node.js 20+ y la estructura del paquete.
-2. Crea un staging bajo `%LOCALAPPDATA%\ibmi-senior-agent`.
-3. Ejecuta `npm ci`, compila TypeScript y deja solo dependencias de runtime.
-4. Detecta VS Code estable, VS Code Insiders o modo portable sin preguntar rutas.
-5. Copia agentes, skills y prompts a ubicaciones globales/de usuario.
-6. Migra con backup agentes Senior manuales antiguos encontrados en la carpeta `prompts`.
-7. Mezcla `ibmi-local` en el `mcp.json` de usuario mediante parser JSONC.
-8. Conserva comentarios, servidores MCP ajenos y crea backup antes de modificar.
-9. Genera `install-manifest.json` para actualizacion y desinstalacion.
+1. Valida Node.js 20+ de arquitectura x64 y la estructura del paquete.
+2. Detecta y selecciona un driver ODBC IBM i registrado para 64 bits.
+3. Si falta, ejecuta el asistente antes de modificar el equipo.
+4. Crea un staging bajo `%LOCALAPPDATA%\ibmi-senior-agent`.
+5. Ejecuta `npm ci`, compila TypeScript y deja solo dependencias de runtime.
+6. Detecta VS Code estable, VS Code Insiders o modo portable sin preguntar rutas.
+7. Copia agentes, skills y prompts a ubicaciones globales/de usuario.
+8. Migra con backup agentes Senior manuales antiguos encontrados en la carpeta `prompts`.
+9. Mezcla `ibmi-local` en el `mcp.json` de usuario mediante parser JSONC.
+10. Conserva comentarios, servidores MCP ajenos y crea backup antes de modificar.
+11. Genera `install-manifest.json` con alias, plataforma y version ODBC detectados.
 
 No copia passwords ni intenta conectarse a IBM i durante la instalacion.
 
@@ -418,7 +465,7 @@ Con el codigo y metadata disponibles, prepara una matriz QA con caso, datos, pas
 .\scripts\Test-IbmiSenior.ps1
 ```
 
-Valida Node.js, MCP compilado, agentes, skills, prompts, sintaxis, registro MCP y aliases ODBC. No abre una conexion IBM i.
+Valida Node.js, MCP compilado, agentes, skills, prompts, sintaxis, registro MCP y el alias exacto ODBC configurado para 64 bits. No abre una conexion IBM i.
 
 ## Circuito Contra Bloqueo De Perfil
 
@@ -437,8 +484,10 @@ Errores de red, timeout, driver faltante, servicio ausente o autoridad sobre obj
 Descarga el nuevo `ibmi-senior-vX.Y.Z.zip`, extraelo en una carpeta nueva y ejecuta:
 
 ```powershell
-.\scripts\Update-IbmiSenior.ps1 -OdbcDriver "iSeries Access ODBC Driver"
+.\scripts\Update-IbmiSenior.ps1
 ```
+
+La actualizacion vuelve a comprobar ODBC y conserva el comportamiento asistido. Usa `-NonInteractive` en despliegues automatizados o `-OdbcInstallerPath` si ya dispones del instalador oficial extraido.
 
 Cada instalacion/actualizacion guarda lo anterior bajo:
 
@@ -473,6 +522,10 @@ Retira agentes, skills, prompts y la entrada `ibmi-local`, pero conserva backups
 | Sintoma | Causa probable | Accion |
 | --- | --- | --- |
 | `node`/`npm.cmd` no encontrado | Node.js ausente o PATH antiguo | Instala Node LTS 64 bits y abre otra terminal |
+| `Node.js de 64 bits` requerido | Node x86 o arquitectura no compatible | Instala Node LTS x64 y abre otra terminal |
+| El asistente no encuentra ODBC | Windows no registra un alias soportado para 64 bits | Abre la descarga desde el asistente o ejecuta `Install-IbmiOdbcPrerequisite.ps1` |
+| `setup.exe` no tiene firma valida de IBM | Archivo incorrecto, alterado o no oficial | Descarta el archivo y descarga Windows Application Package desde IBM |
+| Instalador devuelve `3010` o `1641` | Windows Installer requiere reinicio | Reinicia Windows y vuelve a ejecutar el asistente |
 | `No se pudo cargar el paquete npm 'odbc'` | Instalacion global incompleta o ABI Node incompatible | Ejecuta actualizador y luego diagnostico; verifica Node LTS |
 | `IBMI_ODBC_DRIVER_NOT_FOUND` | Alias no registrado para 64 bits | Usa el nombre exacto de `Get-OdbcDriver -Platform "64-bit"` |
 | Solo existe `iSeries Access ODBC Driver` | Cliente IBM i Access for Windows 7.1 legado | Instala con ese alias; planifica migracion a ACS Windows Application Package |
@@ -496,4 +549,5 @@ Retira agentes, skills, prompts y la entrada `ibmi-local`, pero conserva backups
 - [IBM i Access Client Solutions](https://www.ibm.com/support/pages/ibm-i-access-client-solutions)
 - [Fin de soporte IBM i Access for Windows](https://www.ibm.com/support/pages/ibm-i-access-windows)
 - [Driver ODBC vigente para IBM i ACS](https://www.ibm.com/support/pages/odbc-driver-ibm-i-access-client-solutions)
+- [Parametros de instalacion de Windows Application Package](https://www.ibm.com/docs/en/i/7.4.0?topic=windows-using-command-line-parameters-change-installation-behavior)
 - [Releases publicas del proyecto](https://github.com/h0w4r/ibmi-agents-vscode/releases)

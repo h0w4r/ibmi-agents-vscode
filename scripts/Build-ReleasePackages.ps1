@@ -80,8 +80,10 @@ try {
         "scripts\Update-IbmiSenior.ps1",
         "scripts\Uninstall-IbmiSenior.ps1",
         "scripts\Test-IbmiSenior.ps1",
+        "scripts\Install-IbmiOdbcPrerequisite.ps1",
         "scripts\merge-mcp-config.mjs",
-        "scripts\lib\IbmiAgent.Common.ps1"
+        "scripts\lib\IbmiAgent.Common.ps1",
+        "scripts\lib\IbmiOdbcPrerequisite.ps1"
     )) {
         Copy-ReleasePath -SourceRelative $relative -DestinationRoot $seniorStage
     }
@@ -121,7 +123,7 @@ try {
     Compress-Archive -Path (Join-Path $atlasStage "*") -DestinationPath $atlasZip -CompressionLevel Optimal
 
     Assert-ArchiveEntries -ArchivePath $seniorZip -ForbiddenPatterns @('/editions/atlas/', 'Install-IbmiAtlas', 'ibmi-atlas\.agent\.md')
-    Assert-ArchiveEntries -ArchivePath $atlasZip -ForbiddenPatterns @('^mcp/', '^docs/', 'Install-IbmiSenior', 'merge-mcp-config', 'ibmi-senior\.agent\.md')
+    Assert-ArchiveEntries -ArchivePath $atlasZip -ForbiddenPatterns @('^mcp/', '^docs/', 'Install-IbmiSenior', 'merge-mcp-config', 'IbmiOdbcPrerequisite', 'ibmi-senior\.agent\.md')
 
     $hashLines = @($seniorZip, $atlasZip) | ForEach-Object {
         $hash = Get-FileHash -LiteralPath $_ -Algorithm SHA256

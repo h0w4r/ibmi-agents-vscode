@@ -1,5 +1,13 @@
 # Historial De Cambios - IBM i Senior
 
+## 0.4.0 - 15/07/2026
+
+- Deteccion automatica de drivers ODBC IBM i registrados para 64 bits.
+- Asistente interactivo para descarga, seleccion y comprobacion del Windows Application Package.
+- Validacion Authenticode del `setup.exe` y ejecucion elevada con `ADDLOCAL=req,odbc`.
+- Modo no interactivo que falla antes de modificar VS Code cuando falta el prerequisito.
+- Diagnostico y manifiesto ampliados con alias, plataforma y version ODBC efectivos.
+
 ## 0.3.1 - 15/07/2026
 
 - Catalogo documentado de las 18 herramientas disponibles, con entradas, resultados y limites.
