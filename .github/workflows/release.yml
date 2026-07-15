@@ -1,0 +1,107 @@
+name: Publicar Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version SemVer sin prefijo v, por ejemplo 0.3.1"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Resolver version
+        id: version
+        shell: pwsh
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          $version = if ($env:EVENT_NAME -eq "push") {
+            if (-not $env:REF_NAME.StartsWith("v")) { throw "El tag debe comenzar con v." }
+            $env:REF_NAME.Substring(1)
+          } else {
+            $env:REQUESTED_VERSION.TrimStart("v")
+          }
+          if ($version -notmatch '^\d+\.\d+\.\d+([-.][0-9A-Za-z.-]+)?$') { throw "Version SemVer no valida: $version" }
+          $declared = (Get-Content -LiteralPath VERSION -Raw).Trim()
+          if ($declared -ne $version) { throw "VERSION declara $declared pero se solicito $version." }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=v$version" >> $env:GITHUB_OUTPUT
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: mcp/ibmi-local/package-lock.json
+
+      - name: Instalar dependencias
+        working-directory: mcp/ibmi-local
+        run: npm ci --no-audit --no-fund
+
+      - name: Ejecutar pruebas y compilacion
+        working-directory: mcp/ibmi-local
+        run: |
+          npm test
+          npm run typecheck
+          npm run build
+
+      - name: Validar customizaciones
+        run: node scripts/validate-customizations.mjs
+
+      - name: Validar privacidad del contenido publico
+        env:
+          PUBLIC_CONTENT_DENYLIST: ${{ secrets.PUBLIC_CONTENT_DENYLIST }}
+        run: node scripts/validate-public-content.mjs
+
+      - name: Construir paquetes versionados
+        shell: pwsh
+        run: ./scripts/Build-ReleasePackages.ps1 -Version "${{ steps.version.outputs.version }}"
+
+      - name: Crear o actualizar GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          $assets = @(
+            "artifacts/ibmi-senior-v$env:VERSION.zip",
+            "artifacts/ibmi-atlas-v$env:VERSION.zip",
+            "artifacts/SHA256SUMS.txt"
+          )
+          gh release view $env:TAG --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $env:TAG @assets --clobber --repo $env:GITHUB_REPOSITORY
+          } else {
+            $arguments = @(
+              "release", "create", $env:TAG
+            ) + $assets + @(
+              "--repo", $env:GITHUB_REPOSITORY,
+              "--title", "IBM i Agents $env:VERSION",
+              "--generate-notes"
+            )
+            if ($env:EVENT_NAME -eq "push") {
+              $arguments += "--verify-tag"
+            } else {
+              $arguments += @("--target", $env:GITHUB_SHA)
+            }
+            & gh @arguments
+          }
+          if ($LASTEXITCODE -ne 0) { throw "No se pudo publicar la release $env:TAG." }
