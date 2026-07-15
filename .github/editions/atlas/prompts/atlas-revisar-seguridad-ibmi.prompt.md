@@ -2,7 +2,6 @@
 name: atlas-revisar-seguridad-ibmi
 description: Revisa seguridad de codigo, objetos, perfiles y operaciones IBM i.
 agent: ibmi-atlas-analista
-model: "GPT-5.6 Terra (copilot)"
 tools: [read, search, web]
 argument-hint: Fuente, objeto, proceso o configuracion que debe revisarse.
 ---

@@ -3,7 +3,6 @@ name: ibmi-atlas-desarrollador
 description: Crea, corrige y moderniza fuentes IBM i locales con validacion y planes de compilacion.
 argument-hint: Indica fuente, requerimiento, formato RPG/DDS y ruta de salida local.
 target: vscode
-model: "GPT-5.6 Terra (copilot)"
 user-invocable: false
 tools: [read, search, edit, terminal, web, vscode/askQuestions]
 agents: []

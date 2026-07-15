@@ -63,9 +63,9 @@ Los instaladores autodetectan VS Code estable, VS Code Insiders y modo portable.
 
 En despliegues no interactivos, Senior admite `-NonInteractive`: si falta ODBC, termina sin modificar VS Code y muestra la accion requerida.
 
-## Modelos
+## Seleccion De Modelo
 
-Los orquestadores usan `GPT-5.6 Sol (copilot)` y sus subagentes usan `GPT-5.6 Terra (copilot)`. El nivel `Extra High` se selecciona en `Thinking Effort` porque VS Code no permite fijarlo desde el frontmatter.
+Ningun agente ni prompt fija un modelo. Senior y Atlas usan el modelo seleccionado por el usuario en el picker de Copilot Chat; los subagentes heredan el modelo de la conversacion principal. Esto permite elegir `Auto` o cualquier modelo habilitado por la licencia, el cliente y las politicas de la organizacion, tanto en VS Code estable como en Insiders, sin reinstalar el paquete.
 
 ## Desarrollo
 

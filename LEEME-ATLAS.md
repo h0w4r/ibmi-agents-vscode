@@ -92,21 +92,17 @@ Para un perfil personalizado o para forzar Insiders:
 
 Tambien se pueden cambiar `-CopilotHome` e `-InstallRoot`; no son necesarios en una instalacion estandar.
 
-## Modelos
+## Seleccion De Modelo
 
-| Rol | Modelo |
-| --- | --- |
-| Orquestador `ibmi-atlas` | `GPT-5.6 Sol (copilot)` |
-| Cinco especialistas | `GPT-5.6 Terra (copilot)` |
+Atlas no fija la propiedad `model` en agentes, especialistas ni prompts. El orquestador usa el modelo seleccionado en Copilot Chat y sus cinco subagentes lo heredan. Asi puede trabajar con el catalogo que ofrezcan la licencia, las politicas y la version de VS Code de cada usuario.
 
-Para obtener el nivel de razonamiento previsto:
+1. Abre Copilot Chat y selecciona `ibmi-atlas`.
+2. Abre el selector de modelos del cuadro de chat.
+3. Elige `Auto` o cualquier modelo disponible para tu cuenta.
+4. Usa `Chat: Manage Language Models` para mostrar, ocultar o revisar los modelos accesibles.
+5. Configura `Thinking Effort` solo si el modelo elegido expone esa opcion.
 
-1. Abre el selector de modelos de Copilot Chat.
-2. Selecciona `GPT-5.6 Sol`.
-3. En `Thinking Effort`, elige `Extra High`.
-4. Configura tambien `GPT-5.6 Terra` en `Extra High` cuando las tareas delegadas requieran razonamiento exhaustivo.
-
-El modelo se fija en cada agente; el esfuerzo se gestiona desde el selector de VS Code.
+El cambio se realiza en VS Code estable o Insiders y no requiere reinstalar Atlas. El instalador no pregunta por modelos ni conserva nombres que puedan dejar de estar disponibles.
 
 ## Primera Puesta En Marcha
 

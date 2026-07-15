@@ -3,7 +3,6 @@ name: ibmi-operaciones
 description: Consulta jobs, objetos, spool, colas, subsistemas y estado operativo IBM i con minimo privilegio.
 argument-hint: Indica job, usuario, objeto, cola, subsistema o comprobacion operativa.
 target: vscode
-model: "GPT-5.6 Terra (copilot)"
 user-invocable: false
 tools: [read, search, web, vscode/askQuestions, ibmi-local/*]
 agents: []

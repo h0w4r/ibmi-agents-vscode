@@ -1,5 +1,13 @@
 # Historial De Cambios - IBM i Senior
 
+## 0.5.0 - 15/07/2026
+
+- Seleccion de modelo delegada al picker nativo de Copilot Chat.
+- Eliminacion de modelos fijos en el orquestador, subagentes y prompts.
+- Herencia del modelo principal para las delegaciones especializadas.
+- Compatibilidad con catalogos variables por licencia, cliente y politicas organizacionales.
+- Validaciones y diagnosticos que impiden reintroducir modelos obligatorios.
+
 ## 0.4.0 - 15/07/2026
 
 - Deteccion automatica de drivers ODBC IBM i registrados para 64 bits.

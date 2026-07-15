@@ -2,7 +2,6 @@
 name: atlas-consulta-db2i
 description: Disena y revisa consultas read-only para Db2 for i.
 agent: ibmi-atlas-analista
-model: "GPT-5.6 Terra (copilot)"
 tools: [read, search]
 argument-hint: Objetivo de consulta, tablas, librerias, campos y filtros.
 ---

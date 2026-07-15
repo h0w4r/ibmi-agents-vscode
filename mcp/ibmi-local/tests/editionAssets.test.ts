@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 const testRoot = dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = resolve(testRoot, "..", "..", "..");
 const fullAgentRoot = join(workspaceRoot, ".github", "agents");
+const fullPromptRoot = join(workspaceRoot, ".github", "prompts");
 const atlasRoot = join(workspaceRoot, ".github", "editions", "atlas");
 const atlasAgentRoot = join(atlasRoot, "agents");
 const atlasPromptRoot = join(atlasRoot, "prompts");
@@ -28,16 +29,22 @@ function frontmatter(path: string): Record<string, unknown> {
 }
 
 describe("ediciones de agentes", () => {
-  it("fija Sol en orquestadores y Terra en subagentes", () => {
+  it("deja la seleccion de modelo a cargo de VS Code", () => {
     const agentPaths = [...files(fullAgentRoot, ".agent.md"), ...files(atlasAgentRoot, ".agent.md")];
+    const promptPaths = [...files(fullPromptRoot, ".prompt.md"), ...files(atlasPromptRoot, ".prompt.md")];
     expect(agentPaths).toHaveLength(12);
+    expect(promptPaths).toHaveLength(28);
 
     for (const path of agentPaths) {
       const metadata = frontmatter(path);
       const main = metadata.name === "ibmi-senior" || metadata.name === "ibmi-atlas";
-      expect(metadata.model).toBe(main ? "GPT-5.6 Sol (copilot)" : "GPT-5.6 Terra (copilot)");
+      expect(metadata).not.toHaveProperty("model");
+      for (const handoff of (metadata.handoffs ?? []) as Array<Record<string, unknown>>) {
+        expect(handoff).not.toHaveProperty("model");
+      }
       if (!main) expect(metadata["user-invocable"]).toBe(false);
     }
+    for (const path of promptPaths) expect(frontmatter(path)).not.toHaveProperty("model");
   });
 
   it("mantiene Atlas autocontenido y con nombres coexistentes", () => {

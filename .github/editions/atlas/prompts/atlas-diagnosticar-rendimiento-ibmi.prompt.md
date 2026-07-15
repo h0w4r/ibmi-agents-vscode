@@ -2,7 +2,6 @@
 name: atlas-diagnosticar-rendimiento-ibmi
 description: Diagnostica rendimiento de SQL, jobs y programas IBM i con evidencia disponible.
 agent: ibmi-atlas-diagnostico
-model: "GPT-5.6 Terra (copilot)"
 tools: [read, search, web]
 argument-hint: Consulta, programa, job, metrica, plan o sintoma de rendimiento.
 ---

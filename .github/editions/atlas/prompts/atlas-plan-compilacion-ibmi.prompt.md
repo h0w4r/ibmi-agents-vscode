@@ -2,7 +2,6 @@
 name: atlas-plan-compilacion-ibmi
 description: Genera un plan de compilacion IBM i sin ejecutarlo.
 agent: ibmi-atlas-desarrollador
-model: "GPT-5.6 Terra (copilot)"
 tools: [read, search]
 argument-hint: Lenguaje, objeto, libreria, source file y miembro.
 ---

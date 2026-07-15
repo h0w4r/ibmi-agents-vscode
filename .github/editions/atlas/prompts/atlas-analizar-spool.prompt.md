@@ -2,7 +2,6 @@
 name: atlas-analizar-spool
 description: Analiza un spool IBM i proporcionado como archivo o texto.
 agent: ibmi-atlas-diagnostico
-model: "GPT-5.6 Terra (copilot)"
 tools: [read, search]
 argument-hint: Archivo, texto o extracto del spool y contexto del job.
 ---

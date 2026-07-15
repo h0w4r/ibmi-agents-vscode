@@ -2,7 +2,6 @@
 name: atlas-modernizar-ibmi
 description: Propone modernizacion segura de fuentes IBM i.
 agent: ibmi-atlas-analista
-model: "GPT-5.6 Terra (copilot)"
 tools: [read, search, web]
 argument-hint: Fuente, objetivo de modernizacion y restricciones.
 ---

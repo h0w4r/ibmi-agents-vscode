@@ -3,7 +3,6 @@ name: ibmi-diagnostico
 description: Diagnostica RNF, SQL, CPF, MCH, job logs, listados y spool IBM i.
 argument-hint: Proporciona mensaje, job calificado, spool, listado o sintoma.
 target: vscode
-model: "GPT-5.6 Terra (copilot)"
 user-invocable: false
 tools: [read, search, web, vscode/askQuestions, ibmi-local/*]
 agents: []

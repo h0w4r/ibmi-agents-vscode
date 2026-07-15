@@ -2,7 +2,6 @@
 name: atlas-pruebas-qa-ibmi
 description: Crea un documento de pruebas QA IBM i centrado en ejecucion.
 agent: ibmi-atlas-qa
-model: "GPT-5.6 Terra (copilot)"
 tools: [read, search, edit]
 argument-hint: Requerimiento, objetos, librerias y escenarios.
 ---

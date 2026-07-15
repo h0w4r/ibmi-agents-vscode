@@ -55,11 +55,11 @@ for (const path of agentFiles) {
   const { metadata, text } = parseFrontmatter(path);
   const isAtlas = path.startsWith(atlasRoot);
   const isMain = metadata.name === "ibmi-senior" || metadata.name === "ibmi-atlas";
-  const expectedModel = isMain ? "GPT-5.6 Sol (copilot)" : "GPT-5.6 Terra (copilot)";
 
   if (!metadata.name || !metadata.description) errors.push(`${relative(workspaceRoot, path)}: name/description requeridos.`);
   if (!Array.isArray(metadata.tools)) errors.push(`${relative(workspaceRoot, path)}: tools debe ser una lista.`);
-  if (metadata.model !== expectedModel) errors.push(`${relative(workspaceRoot, path)}: modelo esperado '${expectedModel}'.`);
+  // El catalogo de Copilot varia por licencia y politica; VS Code debe resolver el modelo activo.
+  if (Object.hasOwn(metadata, "model")) errors.push(`${relative(workspaceRoot, path)}: no debe fijar la propiedad model.`);
   if (!isMain && metadata["user-invocable"] !== false) errors.push(`${relative(workspaceRoot, path)}: el subagente debe usar user-invocable: false.`);
   if (metadata.agents?.includes("*")) errors.push(`${relative(workspaceRoot, path)}: no se permite agents: ['*'].`);
 
@@ -68,6 +68,7 @@ for (const path of agentFiles) {
   }
   for (const handoff of metadata.handoffs ?? []) {
     if (!agents.has(handoff.agent)) errors.push(`${relative(workspaceRoot, path)}: handoff inexistente '${handoff.agent}'.`);
+    if (Object.hasOwn(handoff, "model")) errors.push(`${relative(workspaceRoot, path)}: el handoff '${handoff.agent}' no debe fijar model.`);
   }
   if (metadata.tools?.some((tool) => String(tool).startsWith("ibmi-local/")) && !/autenticacion/i.test(text)) {
     errors.push(`${relative(workspaceRoot, path)}: falta regla explicita de autenticacion.`);
@@ -81,13 +82,13 @@ for (const path of [...fullPromptFiles, ...atlasPromptFiles]) {
   const { metadata, text } = parseFrontmatter(path);
   const isAtlas = path.startsWith(atlasRoot);
   if (!metadata.name || !metadata.description) errors.push(`${relative(workspaceRoot, path)}: name/description requeridos.`);
+  if (Object.hasOwn(metadata, "model")) errors.push(`${relative(workspaceRoot, path)}: no debe fijar la propiedad model.`);
   if (metadata.agent && !["agent", "ask", "plan"].includes(metadata.agent) && !agents.has(metadata.agent)) {
     errors.push(`${relative(workspaceRoot, path)}: agente inexistente '${metadata.agent}'.`);
   }
   if (isAtlas) {
     if (!metadata.name.startsWith("atlas-")) errors.push(`${relative(workspaceRoot, path)}: name debe usar prefijo atlas-.`);
     if (!String(metadata.agent).startsWith("ibmi-atlas-")) errors.push(`${relative(workspaceRoot, path)}: agente Atlas invalido.`);
-    if (metadata.model !== "GPT-5.6 Terra (copilot)") errors.push(`${relative(workspaceRoot, path)}: modelo Terra requerido.`);
     if (/\bMCP\b|ibmi-local|IBMI_[A-Z_]+/i.test(text)) errors.push(`${relative(workspaceRoot, path)}: Atlas contiene una dependencia no permitida.`);
   }
 }

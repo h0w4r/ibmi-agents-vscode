@@ -2,7 +2,6 @@
 name: atlas-analizar-impacto-ibmi
 description: Analiza impacto funcional y tecnico de un cambio IBM i.
 agent: ibmi-atlas-analista
-model: "GPT-5.6 Terra (copilot)"
 tools: [read, search, web]
 argument-hint: Requerimiento, programa u objeto que cambiara y alcance esperado.
 ---

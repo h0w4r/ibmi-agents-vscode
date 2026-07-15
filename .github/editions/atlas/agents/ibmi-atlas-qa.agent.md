@@ -3,7 +3,6 @@ name: ibmi-atlas-qa
 description: Disena y documenta pruebas ejecutables, regresion y evidencias para cambios IBM i.
 argument-hint: Indica requerimiento, objetos, librerias, escenarios y datos de prueba.
 target: vscode
-model: "GPT-5.6 Terra (copilot)"
 user-invocable: false
 tools: [read, search, edit, terminal, vscode/askQuestions]
 agents: []

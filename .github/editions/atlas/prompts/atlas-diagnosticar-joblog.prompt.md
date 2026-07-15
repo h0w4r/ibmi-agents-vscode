@@ -2,7 +2,6 @@
 name: atlas-diagnosticar-joblog
 description: Diagnostica job logs y mensajes RNF, SQL, CPF o MCH suministrados.
 agent: ibmi-atlas-diagnostico
-model: "GPT-5.6 Terra (copilot)"
 tools: [read, search]
 argument-hint: Archivo, texto o extracto del job log y sintoma observado.
 ---

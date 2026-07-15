@@ -2,7 +2,6 @@
 name: atlas-generar-fuente-ibmi
 description: Genera un nuevo fuente IBM i con cabecera obligatoria.
 agent: ibmi-atlas-desarrollador
-model: "GPT-5.6 Terra (copilot)"
 tools: [read, search, edit]
 argument-hint: Lenguaje, objetivo, requerimiento, objeto y ruta destino.
 ---

@@ -2,7 +2,6 @@
 name: atlas-revisar-codigo-ibmi
 description: Revisa codigo IBM i priorizando defectos, regresiones y mantenibilidad.
 agent: ibmi-atlas-analista
-model: "GPT-5.6 Terra (copilot)"
 tools: [read, search]
 argument-hint: Fuente, cambio o archivos que deben revisarse.
 ---

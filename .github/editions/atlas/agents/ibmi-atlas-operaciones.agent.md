@@ -3,7 +3,6 @@ name: ibmi-atlas-operaciones
 description: Prepara diagnosticos y procedimientos seguros para jobs, objetos, spool, colas y subsistemas IBM i.
 argument-hint: Indica job, usuario, objeto, cola, subsistema o comprobacion operativa.
 target: vscode
-model: "GPT-5.6 Terra (copilot)"
 user-invocable: false
 tools: [read, search, web, vscode/askQuestions]
 agents: []

@@ -39,7 +39,7 @@ El agente combina evidencia del workspace con informacion viva del IBM i configu
 | Prerrequisito | Minimo/recomendado | Descarga oficial |
 | --- | --- | --- |
 | Windows | Windows 10/11 de 64 bits | Incluido con el equipo |
-| Visual Studio Code | `1.128.0` o posterior para GPT-5.6 | [Descargar VS Code](https://code.visualstudio.com/download) |
+| Visual Studio Code | `1.128.0` o posterior, estable o Insiders | [Descargar VS Code](https://code.visualstudio.com/download) |
 | GitHub Copilot | Extension habilitada y sesion iniciada | [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) |
 | GitHub Copilot Chat | Instalar si VS Code la muestra separada | [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) |
 | Node.js | LTS 20 o posterior, 64 bits | [Descargar Node.js](https://nodejs.org/en/download) |
@@ -166,23 +166,27 @@ La instalacion conserva `ibmi-senior` y agrega `ibmi-atlas`; ninguno reemplaza a
 
 La guia dedicada para usuarios de Atlas es [LEEME-ATLAS.md](LEEME-ATLAS.md).
 
-## Modelos GPT-5.6
+## Seleccion De Modelo
 
-| Rol | Modelo fijado en `.agent.md` | Thinking Effort recomendado |
-| --- | --- | --- |
-| Orquestador `ibmi-senior` | `GPT-5.6 Sol (copilot)` | `Extra High` |
-| Cinco subagentes | `GPT-5.6 Terra (copilot)` | `Extra High` para tareas complejas |
+IBM i Senior no fija la propiedad `model` en agentes, subagentes ni prompts. VS Code usa el modelo activo del selector de Copilot Chat y, al delegar, los subagentes heredan el modelo de la conversacion principal. Por tanto, el paquete funciona aunque distintas licencias muestren catalogos diferentes.
 
-VS Code permite fijar el modelo mediante `model`, pero el esfuerzo se configura desde el submenu **Thinking Effort** del selector de modelos. No existe un campo soportado en el frontmatter para imponer `Extra High`. VS Code recuerda el nivel por sesion y las conversaciones nuevas parten del ultimo nivel elegido para ese modelo.
+| Decision | Comportamiento |
+| --- | --- |
+| Modelo del orquestador `ibmi-senior` | El que el usuario seleccione en Copilot Chat |
+| Modelo de los cinco subagentes | Hereda el modelo principal porque no tiene uno fijado |
+| Opcion `Auto` | Copilot elige entre los modelos permitidos por el plan y las politicas aplicables |
+| `Thinking Effort` | Se configura en el picker cuando el modelo elegido ofrece esa capacidad |
+| Cambio de modelo | Se aplica desde el picker; no requiere reinstalar ni actualizar el agente |
 
-Para configurarlo:
+Para configurarlo en VS Code estable o Insiders:
 
-1. Abre el selector de modelos de Copilot Chat.
-2. Selecciona `GPT-5.6 Sol`.
-3. Abre `Thinking Effort` y elige `Extra High`.
-4. Repite con `GPT-5.6 Terra` si quieres que las delegaciones usen ese nivel.
+1. Abre Copilot Chat y selecciona `ibmi-senior`.
+2. Abre el selector de modelos situado en el cuadro de chat.
+3. Elige `Auto` o cualquiera de los modelos disponibles en tu cuenta.
+4. Si necesitas revisar el catalogo, ejecuta `Chat: Manage Language Models` desde la paleta de comandos.
+5. Si el modelo ofrece niveles de esfuerzo, selecciona el apropiado para la tarea y el consumo esperado.
 
-Si la organizacion no habilito alguno de los modelos, revisa `Chat: Manage Language Models` o la politica de modelos de GitHub Copilot. No agregues un fallback mas caro a los subagentes: eso anularia el control de costo buscado.
+La lista puede variar por plan de Copilot, version del cliente y politicas de la organizacion o empresa. El instalador no solicita nombres de modelos porque VS Code es quien conoce la disponibilidad efectiva de la sesion autenticada.
 
 ## Autodeteccion De Rutas
 

@@ -3,7 +3,6 @@ name: ibmi-analista
 description: Analiza comportamiento, impacto, dependencias y modernizacion de soluciones IBM i sin editar fuentes.
 argument-hint: Indica programa, proceso, requerimiento o cambio que debe analizarse.
 target: vscode
-model: "GPT-5.6 Terra (copilot)"
 user-invocable: false
 tools: [read, search, web, vscode/askQuestions, ibmi-local/*]
 agents: []

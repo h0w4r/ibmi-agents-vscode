@@ -2,7 +2,6 @@
 name: atlas-buscar-api-sistema
 description: Busca y explica APIs del sistema IBM i.
 agent: ibmi-atlas-analista
-model: "GPT-5.6 Terra (copilot)"
 tools: [read, search, web]
 argument-hint: API como QCMDEXC, QCAPCMD, QMHRTVM o necesidad tecnica.
 ---

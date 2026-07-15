@@ -2,7 +2,6 @@
 name: atlas-disenar-dds
 description: Disena o revisa DDS para PF, LF o DSPF.
 agent: ibmi-atlas-desarrollador
-model: "GPT-5.6 Terra (copilot)"
 tools: [read, search, edit]
 argument-hint: Tipo DDS, campos, claves, pantalla o reglas de negocio.
 ---
